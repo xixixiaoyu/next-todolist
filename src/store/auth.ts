@@ -83,32 +83,36 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialize: async () => {
     const supabase = createClient()
-    
+
     try {
       // 获取当前会话
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession()
+
       if (error) {
         console.error('Error getting session:', error)
       }
 
-      set({ 
-        user: session?.user ?? null, 
-        loading: false, 
-        initialized: true 
+      set({
+        user: session?.user ?? null,
+        loading: false,
+        initialized: true,
       })
 
       // 监听认证状态变化
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          set({ 
-            user: session?.user ?? null,
-            loading: false 
-          })
-        }
-      )
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, session) => {
+        set({
+          user: session?.user ?? null,
+          loading: false,
+        })
+      })
 
-      return () => subscription.unsubscribe()
+      // 注意：这里不能返回 unsubscribe 函数，因为接口定义返回 void
+      // 实际的 unsubscribe 应该在组件的 useEffect cleanup 中处理
     } catch (error) {
       console.error('Error initializing auth:', error)
       set({ loading: false, initialized: true })

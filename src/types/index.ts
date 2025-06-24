@@ -108,6 +108,7 @@ export interface TodoFormProps {
   loading?: boolean
   initialData?: TodoFormData
   mode?: 'create' | 'edit'
+  onCancel?: () => void
 }
 
 // 过滤和排序类型

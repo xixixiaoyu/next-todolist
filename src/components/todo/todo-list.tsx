@@ -1,8 +1,9 @@
 'use client'
 
+import React from 'react'
 import { TodoItem } from './todo-item'
 import { Card, CardContent } from '@/components/ui/card'
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { CheckCircle, Clock } from 'lucide-react'
 import type { Todo, TodoUpdate } from '@/types'
 
 interface TodoListProps {
@@ -12,7 +13,12 @@ interface TodoListProps {
   onDelete: (id: string) => Promise<void>
 }
 
-export function TodoList({ todos, loading, onUpdate, onDelete }: TodoListProps) {
+export const TodoList = React.memo(function TodoList({
+  todos,
+  loading,
+  onUpdate,
+  onDelete,
+}: TodoListProps) {
   if (loading) {
     return (
       <Card>
@@ -41,8 +47,8 @@ export function TodoList({ todos, loading, onUpdate, onDelete }: TodoListProps) 
   }
 
   // 按完成状态分组
-  const activeTodos = todos.filter(todo => !todo.completed)
-  const completedTodos = todos.filter(todo => todo.completed)
+  const activeTodos = todos.filter((todo) => !todo.completed)
+  const completedTodos = todos.filter((todo) => todo.completed)
 
   return (
     <div className="space-y-6">
@@ -55,12 +61,7 @@ export function TodoList({ todos, loading, onUpdate, onDelete }: TodoListProps) 
           </div>
           <div className="space-y-3">
             {activeTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-              />
+              <TodoItem key={todo.id} todo={todo} onUpdate={onUpdate} onDelete={onDelete} />
             ))}
           </div>
         </div>
@@ -75,16 +76,11 @@ export function TodoList({ todos, loading, onUpdate, onDelete }: TodoListProps) 
           </div>
           <div className="space-y-3">
             {completedTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-              />
+              <TodoItem key={todo.id} todo={todo} onUpdate={onUpdate} onDelete={onDelete} />
             ))}
           </div>
         </div>
       )}
     </div>
   )
-}
+})

@@ -29,7 +29,7 @@ jest.mock('@/lib/supabase/client', () => ({
       signOut: jest.fn(),
       getSession: jest.fn(),
       onAuthStateChange: jest.fn(() => ({
-        data: { subscription: { unsubscribe: jest.fn() } }
+        data: { subscription: { unsubscribe: jest.fn() } },
       })),
     },
     from: jest.fn(() => ({
@@ -51,3 +51,10 @@ jest.mock('@/lib/supabase/client', () => ({
 // Mock environment variables
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+
+// Mock window.confirm
+global.confirm = jest.fn(() => true)
+
+// Mock window.location
+delete window.location
+window.location = { reload: jest.fn() }

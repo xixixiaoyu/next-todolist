@@ -9,22 +9,22 @@ interface TodoState {
   sort: TodoSort
   order: SortOrder
   search: string
-  
+
   // Actions
   fetchTodos: () => Promise<void>
   addTodo: (todo: TodoInsert) => Promise<void>
   updateTodo: (id: string, updates: TodoUpdate) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
   toggleTodo: (id: string) => Promise<void>
-  
+
   // Filters and sorting
   setFilter: (filter: TodoFilter) => void
   setSort: (sort: TodoSort, order?: SortOrder) => void
   setSearch: (search: string) => void
-  
+
   // Computed
   filteredTodos: () => Todo[]
-  
+
   // Real-time subscription
   subscribeToTodos: () => () => void
 }
@@ -48,7 +48,8 @@ export const useTodoStore = create<TodoState>((set, get) => ({
         .order('created_at', { ascending: false })
 
       if (error) {
-        throw error
+        console.error('Error fetching todos:', error)
+        throw new Error(`获取任务失败: ${error.message}`)
       }
 
       set({ todos: data || [], loading: false })
@@ -63,18 +64,14 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     const supabase = createClient()
 
     try {
-      const { data, error } = await supabase
-        .from('todos')
-        .insert([todo])
-        .select()
-        .single()
+      const { data, error } = await supabase.from('todos').insert([todo]).select().single()
 
       if (error) {
         throw error
       }
 
       set((state) => ({
-        todos: [data, ...state.todos]
+        todos: [data, ...state.todos],
       }))
     } catch (error) {
       console.error('Error adding todo:', error)
@@ -98,9 +95,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       }
 
       set((state) => ({
-        todos: state.todos.map((todo) =>
-          todo.id === id ? data : todo
-        )
+        todos: state.todos.map((todo) => (todo.id === id ? data : todo)),
       }))
     } catch (error) {
       console.error('Error updating todo:', error)
@@ -112,17 +107,14 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     const supabase = createClient()
 
     try {
-      const { error } = await supabase
-        .from('todos')
-        .delete()
-        .eq('id', id)
+      const { error } = await supabase.from('todos').delete().eq('id', id)
 
       if (error) {
         throw error
       }
 
       set((state) => ({
-        todos: state.todos.filter((todo) => todo.id !== id)
+        todos: state.todos.filter((todo) => todo.id !== id),
       }))
     } catch (error) {
       console.error('Error deleting todo:', error)
@@ -151,15 +143,16 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
   filteredTodos: () => {
     const { todos, filter, sort, order, search } = get()
-    
+
     let filtered = todos
 
     // 应用搜索过滤
     if (search) {
       const searchLower = search.toLowerCase()
-      filtered = filtered.filter((todo) =>
-        todo.title.toLowerCase().includes(searchLower) ||
-        (todo.description && todo.description.toLowerCase().includes(searchLower))
+      filtered = filtered.filter(
+        (todo) =>
+          todo.title.toLowerCase().includes(searchLower) ||
+          (todo.description && todo.description.toLowerCase().includes(searchLower))
       )
     }
 
@@ -208,7 +201,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
   subscribeToTodos: () => {
     const supabase = createClient()
-    
+
     const subscription = supabase
       .channel('todos')
       .on(
@@ -225,17 +218,17 @@ export const useTodoStore = create<TodoState>((set, get) => ({
             switch (eventType) {
               case 'INSERT':
                 return {
-                  todos: [newRecord as Todo, ...state.todos]
+                  todos: [newRecord as Todo, ...state.todos],
                 }
               case 'UPDATE':
                 return {
                   todos: state.todos.map((todo) =>
                     todo.id === newRecord.id ? (newRecord as Todo) : todo
-                  )
+                  ),
                 }
               case 'DELETE':
                 return {
-                  todos: state.todos.filter((todo) => todo.id !== oldRecord.id)
+                  todos: state.todos.filter((todo) => todo.id !== oldRecord.id),
                 }
               default:
                 return state

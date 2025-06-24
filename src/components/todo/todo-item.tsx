@@ -42,7 +42,7 @@ export function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
   }
 
   const handleDelete = async () => {
-    if (window.confirm('确定要删除这个任务吗？')) {
+    if (window.confirm(`确定要删除任务"${todo.title}"吗？此操作无法撤销。`)) {
       setLoading(true)
       try {
         await onDelete(todo.id)
@@ -78,31 +78,27 @@ export function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
             onClick={handleToggleComplete}
             disabled={loading}
             className={`mt-1 flex-shrink-0 ${
-              todo.completed 
-                ? 'bg-green-100 border-green-300 text-green-700 hover:bg-green-200' 
+              todo.completed
+                ? 'bg-green-100 border-green-300 text-green-700 hover:bg-green-200'
                 : 'hover:bg-gray-100'
             }`}
             aria-label={todo.completed ? '标记为未完成' : '标记为已完成'}
           >
-            {todo.completed ? (
-              <RotateCcw className="h-4 w-4" />
-            ) : (
-              <Check className="h-4 w-4" />
-            )}
+            {todo.completed ? <RotateCcw className="h-4 w-4" /> : <Check className="h-4 w-4" />}
           </Button>
 
           {/* 任务内容 */}
           <div className="flex-1 min-w-0">
-            <h3 className={`font-medium text-lg leading-tight ${
-              todo.completed ? 'line-through text-gray-500' : 'text-gray-900'
-            }`}>
+            <h3
+              className={`font-medium text-lg leading-tight ${
+                todo.completed ? 'line-through text-gray-500' : 'text-gray-900'
+              }`}
+            >
               {todo.title}
             </h3>
-            
+
             {todo.description && (
-              <p className={`mt-1 text-sm ${
-                todo.completed ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+              <p className={`mt-1 text-sm ${todo.completed ? 'text-gray-400' : 'text-gray-600'}`}>
                 {todo.description}
               </p>
             )}
